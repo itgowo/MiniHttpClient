@@ -1,0 +1,39 @@
+group 'com.itgowo'
+version '0.0.1'
+
+apply plugin: 'java'
+apply plugin: 'com.novoda.bintray-release'//添加
+
+sourceCompatibility = 1.8
+buildscript {
+    repositories {
+        mavenCentral()
+        google()
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.novoda:bintray-release:0.8.1'
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+repositories {
+    mavenCentral()
+    google()
+    jcenter()
+}
+tasks.withType(Javadoc) {
+    options.addStringOption('Xdoclint:none', '-quiet')
+    options.addStringOption('encoding', 'UTF-8')
+}
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+publish {
+    userOrg = 'itgowo'
+    groupId = 'com.itgowo'
+    artifactId = 'MiniHttpClient'
+    publishVersion = '0.0.1'
+    desc = 'A simple http client framework based on HttpURLConnection wrapper'
+    website = 'https://github.com/itgowo/MiniHttpClient'
+}

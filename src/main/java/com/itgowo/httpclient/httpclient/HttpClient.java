@@ -1,5 +1,7 @@
 package com.itgowo.httpclient.httpclient;
 
+import java.io.File;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 
@@ -13,7 +15,7 @@ import java.util.concurrent.*;
 public class HttpClient {
     private static final String TAG = "itgowo-HttpClient";
     private static int timeout = 15000;
-    private static ExecutorService executorService = new ThreadPoolExecutor(2, 15, 60 * 1000 * 3, TimeUnit.SECONDS, new LinkedBlockingDeque<Runnable>(), new ThreadFactory() {
+    private static ExecutorService executorService = new ThreadPoolExecutor(0, 6, 60 * 1000 * 3, TimeUnit.SECONDS, new LinkedBlockingDeque<Runnable>(), new ThreadFactory() {
         @Override
         public Thread newThread(Runnable r) {
             Thread thread = new Thread(r);
@@ -37,21 +39,33 @@ public class HttpClient {
     public static void Request(String url, HttpMethod method, Map<String, String> headers1, String requestJson, onCallbackListener listener) {
         executorService.execute(new BaseRequestAsyncClient(url, method.getMethod(), timeout, listener) {
             @Override
-            protected String prepare(Map<String, String> headers) {
+            protected String prepare(BaseRequestSyncClient baseRequestSyncClient) {
                 if (headers1 != null) {
-                    headers.putAll(headers1);
+                    baseRequestSyncClient.addHeaders(headers1);
                 }
                 return requestJson;
             }
+
         });
     }
-
+    public static void RequestUploadFiles(String url,  Map<String, String> headers1, List<File> uploadFiles1, onCallbackListener listener) {
+        executorService.execute(new BaseRequestAsyncClient(url, HttpMethod.POST.getMethod(), timeout, listener) {
+            @Override
+            protected String prepare(BaseRequestSyncClient baseRequestSyncClient) {
+                if (headers1 != null) {
+                    baseRequestSyncClient.addHeaders(headers1);
+                }
+                baseRequestSyncClient.setUploadFiles(uploadFiles1);
+                return null;
+            }
+        });
+    }
     public static HttpResponse RequestSync(String url, HttpMethod method, Map<String, String> headers1, String requestJson) throws Exception {
         FutureTask futureTask = (FutureTask) executorService.submit(new BaseRequestSyncClient(url, method.getMethod(),   timeout ,new onSimpleCallbackListener(){}) {
             @Override
-            protected String prepare(Map<String, String> headers) {
+            protected String prepare(BaseRequestSyncClient baseRequestSyncClient) {
                 if (headers1 != null) {
-                    headers.putAll(headers1);
+                    baseRequestSyncClient.addHeaders(headers1);
                 }
                 return requestJson;
             }

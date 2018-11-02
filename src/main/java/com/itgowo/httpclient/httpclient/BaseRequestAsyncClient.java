@@ -15,8 +15,10 @@ public abstract class BaseRequestAsyncClient extends BaseRequestSyncClient imple
                 if (httpResponse.isDownloadFile()) {
                     listener.onSuccess(httpResponse, httpResponse.getDownloadFile());
                 } else {
-                    listener.onSuccess(request());
+                    listener.onSuccess(httpResponse);
                 }
+            } else {
+                listener.onError(httpResponse, new Exception("code:" + httpResponse.getResponseCode() + "  msg:" + httpResponse.getResponseMessage()));
             }
         } catch (IOException e) {
             listener.onError(httpResponse.setSuccess(false), e);

@@ -98,11 +98,30 @@ public class HttpResponse {
             outputStream.write(bytes, 0, count);
         }
         this.body = outputStream.toByteArray();
+        if (!isSuccess){
+            this.responseMessage=new String(this.body);
+        }
         return this;
     }
 
     public String getMethod() {
         return method;
+    }
+
+    public int getResponseCode() {
+        return responseCode;
+    }
+
+    public String getResponseMessage() {
+        return responseMessage;
+    }
+
+    public String getContentType() {
+        return contentType;
+    }
+
+    public int getContentLength() {
+        return contentLength;
     }
 
     @Override

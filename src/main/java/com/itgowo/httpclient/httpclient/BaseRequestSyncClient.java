@@ -70,6 +70,7 @@ public abstract class BaseRequestSyncClient implements Callable<HttpResponse> {
         httpURLConnection.setUseCaches(false);   //不允许缓存
         httpURLConnection.setRequestMethod(requestMethod);      //设置POST方式连接
         httpURLConnection.setReadTimeout(timeout);
+        httpURLConnection.setRequestProperty("Accept","text/html,application/json,application/octet-stream");
 
         //设置请求属性
         httpURLConnection.setRequestProperty("Charset", "UTF-8");
@@ -109,7 +110,11 @@ public abstract class BaseRequestSyncClient implements Callable<HttpResponse> {
                 while ((length = fStream.read(buffer)) != -1) {
                     outputStream.write(buffer, 0, length);
                     process += length;
-                    listener.onProcess(uploadFile, count, process);
+                    try {
+                        listener.onProcess(uploadFile, count, process);
+                    } catch (Exception e) {
+                        listener.onError(httpResponse.setSuccess(false), e);
+                    }
                 }
                 outputStream.writeBytes(end);
                 /* close streams */
@@ -157,7 +162,11 @@ public abstract class BaseRequestSyncClient implements Callable<HttpResponse> {
                 while ((size = bin.read(buf)) != -1) {
                     len += size;
                     out.write(buf, 0, size);
-                    listener.onProcess(file, fileLength, len);
+                    try {
+                        listener.onProcess(file, fileLength, len);
+                    } catch (Exception e) {
+                        listener.onError(httpResponse.setSuccess(false), e);
+                    }
                 }
                 bin.close();
                 out.close();

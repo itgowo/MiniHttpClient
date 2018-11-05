@@ -20,7 +20,7 @@ public abstract class BaseRequestAsyncClient extends BaseRequestSyncClient imple
             } else {
                 listener.onError(httpResponse, new Exception("code:" + httpResponse.getResponseCode() + "  msg:" + httpResponse.getResponseMessage()));
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             listener.onError(httpResponse.setSuccess(false), e);
         }
     }

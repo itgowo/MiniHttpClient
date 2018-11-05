@@ -81,7 +81,7 @@ public class HttpResponse {
         return body;
     }
 
-    public String getBodaStr() {
+    public String getBodyStr() {
         return body == null ? "" : new String(body);
     }
 

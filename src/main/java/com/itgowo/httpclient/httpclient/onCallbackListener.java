@@ -5,9 +5,9 @@ import java.io.File;
 public interface onCallbackListener {
     void onError(HttpResponse httpResponse, Exception e);
 
-    void onSuccess(HttpResponse httpResponse);
+    void onSuccess(HttpResponse httpResponse) throws Exception;
 
-    void onSuccess(HttpResponse httpResponse, File file);
+    void onSuccess(HttpResponse httpResponse, File file) throws Exception;
 
-    void onProcess(File file, int countBytes, int processBytes);
+    void onProcess(File file, int countBytes, int processBytes) throws Exception;
 }

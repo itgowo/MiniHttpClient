@@ -40,7 +40,7 @@ public class Demo {
         String url = "http://127.0.0.1:12111/app.js";
         Map<String, String> headers = new HashMap<>();
         headers.put("sign", "aaaaabbbbcccc");
-        HttpClient.Request(url, HttpMethod.POST, headers, null, new onSimpleCallbackListener() {
+        HttpClient.Request(url, HttpMethod.POST, headers, null, null, new onSimpleCallbackListener() {
             @Override
             public void onError(HttpResponse response, Exception e) {
                 e.printStackTrace();
@@ -58,7 +58,7 @@ public class Demo {
     public static void testDownloadFile() {
         String downloadUrl = "http://file.itgowo.com/itgowo/RemoteDataController/web_app.zip";
         String url = "http://127.0.0.1:12111/app.js";
-        HttpClient.RequestGet(downloadUrl, null, null, new onSimpleCallbackListener() {
+        HttpClient.RequestGetFile(downloadUrl, null, null, new onSimpleCallbackListener() {
             @Override
             public void onError(HttpResponse response, Exception e) {
                 e.printStackTrace();

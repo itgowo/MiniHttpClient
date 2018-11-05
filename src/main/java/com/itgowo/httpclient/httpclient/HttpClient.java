@@ -28,27 +28,33 @@ public class HttpClient {
         timeout = timeout1;
     }
 
-    public static void RequestGet(String url, Map<String, String> headers, String requestJson, onCallbackListener listener) {
-        Request(url, HttpMethod.GET, headers, requestJson, listener);
+    public static void RequestGet(String url, Map<String, String> headers, onCallbackListener listener) {
+        RequestGetFile(url, headers, null, listener);
+    }
+
+    public static void RequestGetFile(String url, Map<String, String> headers, String downloadDir, onCallbackListener listener) {
+        Request(url, HttpMethod.GET, headers, downloadDir, null, listener);
     }
 
     public static void RequestPOST(String url, Map<String, String> headers, String requestJson, onCallbackListener listener) {
-        Request(url, HttpMethod.POST, headers, requestJson, listener);
+        Request(url, HttpMethod.POST, headers, null,requestJson,  listener);
     }
 
-    public static void Request(String url, HttpMethod method, Map<String, String> headers1, String requestJson, onCallbackListener listener) {
+    public static void Request(String url, HttpMethod method, Map<String, String> headers1, String downloadDir1, String requestJson, onCallbackListener listener) {
         executorService.execute(new BaseRequestAsyncClient(url, method.getMethod(), timeout, listener) {
             @Override
             protected String prepare(BaseRequestSyncClient baseRequestSyncClient) {
                 if (headers1 != null) {
                     baseRequestSyncClient.addHeaders(headers1);
                 }
+                setDownloadDir(downloadDir1);
                 return requestJson;
             }
 
         });
     }
-    public static void RequestUploadFiles(String url,  Map<String, String> headers1, List<File> uploadFiles1, onCallbackListener listener) {
+
+    public static void RequestUploadFiles(String url, Map<String, String> headers1, List<File> uploadFiles1, onCallbackListener listener) {
         executorService.execute(new BaseRequestAsyncClient(url, HttpMethod.POST.getMethod(), timeout, listener) {
             @Override
             protected String prepare(BaseRequestSyncClient baseRequestSyncClient) {
@@ -60,8 +66,10 @@ public class HttpClient {
             }
         });
     }
+
     public static HttpResponse RequestSync(String url, HttpMethod method, Map<String, String> headers1, String requestJson) throws Exception {
-        FutureTask futureTask = (FutureTask) executorService.submit(new BaseRequestSyncClient(url, method.getMethod(),   timeout ,new onSimpleCallbackListener(){}) {
+        FutureTask futureTask = (FutureTask) executorService.submit(new BaseRequestSyncClient(url, method.getMethod(), timeout, new onSimpleCallbackListener() {
+        }) {
             @Override
             protected String prepare(BaseRequestSyncClient baseRequestSyncClient) {
                 if (headers1 != null) {

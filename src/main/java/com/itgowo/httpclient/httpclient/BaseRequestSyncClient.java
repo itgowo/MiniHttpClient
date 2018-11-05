@@ -57,7 +57,8 @@ public abstract class BaseRequestSyncClient implements Callable<HttpResponse> {
     }
 
     public void setDownloadDir(String dir) {
-        this.downloadDir = dir;
+        if (dir != null && dir.trim().length() > 0)
+            this.downloadDir = dir;
     }
 
     protected HttpResponse request() throws IOException {
@@ -65,12 +66,12 @@ public abstract class BaseRequestSyncClient implements Callable<HttpResponse> {
         httpURLConnection = (HttpURLConnection) url.openConnection();
 
         //设置参数
-        httpURLConnection.setDoOutput(true);     //需要输出
+        httpURLConnection.setDoOutput(!"GET".equalsIgnoreCase(requestMethod));     //需要输出
         httpURLConnection.setDoInput(true);      //需要输入
         httpURLConnection.setUseCaches(false);   //不允许缓存
-        httpURLConnection.setRequestMethod(requestMethod);      //设置POST方式连接
+        httpURLConnection.setRequestMethod(requestMethod);
         httpURLConnection.setReadTimeout(timeout);
-        httpURLConnection.setRequestProperty("Accept","text/html,application/json,application/octet-stream");
+        httpURLConnection.setRequestProperty("Accept", "text/html,application/json,application/octet-stream");
 
         //设置请求属性
         httpURLConnection.setRequestProperty("Charset", "UTF-8");

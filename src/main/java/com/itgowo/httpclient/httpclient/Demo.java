@@ -39,8 +39,9 @@ public class Demo {
     public static void testRequest() {
         String url = "http://127.0.0.1:12111/app.js";
         Map<String, String> headers = new HashMap<>();
-        headers.put("sign", "aaaaabbbbcccc");
-        HttpClient.Request(url, HttpMethod.POST, headers, null, null, new onSimpleCallbackListener() {
+        headers.put("content-type", "application/json");
+        String httpBody = "{\"name\":\"张三\"}";
+        HttpClient.Request(url, HttpMethod.POST, headers, null, httpBody, new onSimpleCallbackListener() {
             @Override
             public void onError(HttpResponse response, Exception e) {
                 e.printStackTrace();
@@ -57,8 +58,8 @@ public class Demo {
 
     public static void testDownloadFile() {
         String downloadUrl = "http://file.itgowo.com/itgowo/RemoteDataController/web_app.zip";
-        String url = "http://127.0.0.1:12111/app.js";
-        HttpClient.RequestGetFile(downloadUrl, null, null, new onSimpleCallbackListener() {
+        String downloadDir = "/temp";
+        HttpClient.RequestGetFile(downloadUrl, null, downloadDir, new onSimpleCallbackListener() {
             @Override
             public void onError(HttpResponse response, Exception e) {
                 e.printStackTrace();

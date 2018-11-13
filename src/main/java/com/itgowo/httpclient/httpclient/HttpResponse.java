@@ -144,7 +144,7 @@ public class HttpResponse {
         return contentLength;
     }
 
-    private Map<String, String> parseParms(String uriParms) {
+    public Map<String, String> parseParms(String uriParms) {
         Map<String, String> map = new HashMap<>();
         if (uriParms == null) {
             return map;

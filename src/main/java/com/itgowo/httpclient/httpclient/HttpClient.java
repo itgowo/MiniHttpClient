@@ -15,7 +15,7 @@ import java.util.concurrent.*;
 public class HttpClient {
     private static final String TAG = "itgowo-HttpClient";
     private static int timeout = 30000;
-    private static ExecutorService executorService = new ThreadPoolExecutor(4, 20, 60 * 1000 * 3, TimeUnit.SECONDS, new LinkedBlockingDeque<Runnable>(), new ThreadFactory() {
+    private static ExecutorService executorService = new ThreadPoolExecutor(1, 10, 30, TimeUnit.SECONDS, new LinkedBlockingDeque<Runnable>(), new ThreadFactory() {
         @Override
         public Thread newThread(Runnable r) {
             Thread thread = new Thread(r);
@@ -37,7 +37,7 @@ public class HttpClient {
     }
 
     public static void RequestPOST(String url, Map<String, String> headers, String requestJson, onCallbackListener listener) {
-        Request(url, HttpMethod.POST, headers, null,requestJson,  listener);
+        Request(url, HttpMethod.POST, headers, null, requestJson, listener);
     }
 
     public static void Request(String url, HttpMethod method, Map<String, String> headers1, String downloadDir1, String requestJson, onCallbackListener listener) {
@@ -78,7 +78,7 @@ public class HttpClient {
                 return requestJson;
             }
         });
-        return (HttpResponse) futureTask.get(timeout,TimeUnit.MILLISECONDS);
+        return (HttpResponse) futureTask.get();
     }
 
 }

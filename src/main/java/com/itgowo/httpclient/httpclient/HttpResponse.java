@@ -111,6 +111,9 @@ public class HttpResponse {
     }
 
     public HttpResponse setBody(InputStream inputStream) throws IOException {
+        if (inputStream==null){
+            return this;
+        }
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         byte[] bytes = new byte[1024];
         int count;

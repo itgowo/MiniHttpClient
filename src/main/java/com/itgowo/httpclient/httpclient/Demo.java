@@ -10,7 +10,9 @@ public class Demo {
     public static void main(String[] args) {
         String url = "http://127.0.0.1:12111/app.js";
         String url1 = "http://file.itgowo.com/itgowo/MiniHttpServer/version";
-        testDownloadFile();
+        for (int i = 0; i < 100; i++) {
+            testRequestSync();
+        }
     }
 
     public static void testUploadFile() {
@@ -54,6 +56,17 @@ public class Demo {
             }
 
         });
+    } public static void testRequestSync() {
+        String url = "http://127.0.0.1:12111/app.js";
+        Map<String, String> headers = new HashMap<>();
+        headers.put("content-type", "application/json");
+        String httpBody = "{\"name\":\"张三\"}";
+        try {
+          HttpResponse response=  HttpClient.RequestSync(url, HttpMethod.POST, headers,   httpBody);
+            System.out.println(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static void testDownloadFile() {

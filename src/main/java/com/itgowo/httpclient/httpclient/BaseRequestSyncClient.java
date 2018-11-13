@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -141,6 +142,7 @@ public abstract class BaseRequestSyncClient implements Callable<HttpResponse> {
                 httpResponse.setIsDownloadFile(true);
                 // 文件名
                 String filePathUrl = httpURLConnection.getURL().getPath();
+                filePathUrl=URLDecoder.decode(filePathUrl,"utf-8");
                 String fileFullName = filePathUrl.substring(filePathUrl.lastIndexOf(File.separatorChar) + 1);
                 BufferedInputStream bin = new BufferedInputStream(httpURLConnection.getInputStream());
                 String path = downloadDir + File.separatorChar + fileFullName;
@@ -179,7 +181,6 @@ public abstract class BaseRequestSyncClient implements Callable<HttpResponse> {
             //错误
             httpResponse.setBody(httpURLConnection.getErrorStream());
         }
-
         return httpResponse;
     }
 

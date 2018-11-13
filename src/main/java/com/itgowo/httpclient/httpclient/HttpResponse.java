@@ -6,9 +6,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 /**
  * @author lujianchao
@@ -28,6 +30,9 @@ public class HttpResponse {
     private String method;
     private boolean isDownloadFile;
     private File downloadFile;
+    private URL url;
+    private HttpURLConnection httpURLConnection;
+    private Map<String, String> parms = new HashMap<>();
 
     public File getDownloadFile() {
         return downloadFile;
@@ -56,12 +61,18 @@ public class HttpResponse {
         return this;
     }
 
+    public Map<String, String> getParms() {
+        return parms;
+    }
+
     protected void parse(HttpURLConnection urlConnection) throws IOException {
         responseCode = urlConnection.getResponseCode();
         responseMessage = urlConnection.getResponseMessage();
         contentType = urlConnection.getContentType();
         method = urlConnection.getRequestMethod();
         contentLength = urlConnection.getContentLength();
+        url = urlConnection.getURL();
+        httpURLConnection = urlConnection;
         if (responseCode >= 200 && responseCode <= 202) {
             setSuccess(true);
         } else {
@@ -71,6 +82,15 @@ public class HttpResponse {
             String value = stringListEntry.getValue() == null || stringListEntry.getValue().isEmpty() ? "" : stringListEntry.getValue().get(0);
             headers.put(stringListEntry.getKey(), value);
         }
+        parms = parseParms(url.getQuery());
+    }
+
+    public URL getUrl() {
+        return url;
+    }
+
+    public HttpURLConnection getHttpURLConnection() {
+        return httpURLConnection;
     }
 
     public Map<String, String> getHeaders() {
@@ -98,8 +118,8 @@ public class HttpResponse {
             outputStream.write(bytes, 0, count);
         }
         this.body = outputStream.toByteArray();
-        if (!isSuccess){
-            this.responseMessage=new String(this.body);
+        if (!isSuccess) {
+            this.responseMessage = new String(this.body);
         }
         return this;
     }
@@ -124,6 +144,24 @@ public class HttpResponse {
         return contentLength;
     }
 
+    private Map<String, String> parseParms(String uriParms) {
+        Map<String, String> map = new HashMap<>();
+        if (uriParms == null) {
+            return map;
+        }
+        StringTokenizer parms = new StringTokenizer(uriParms, "&");
+        while (parms.hasMoreTokens()) {
+            String e = parms.nextToken();
+            int sep = e.indexOf('=');
+            if (sep >= 0) {
+                map.put(e.substring(0, sep).trim(), e.substring(sep + 1));
+            } else {
+                map.put(e.trim(), "");
+            }
+        }
+        return map;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("HttpResponse{");
@@ -136,7 +174,7 @@ public class HttpResponse {
         sb.append(", downloadFile=").append(downloadFile);
         sb.append(", method='").append(method).append('\'');
         sb.append(", headers=").append(headers);
-        sb.append(", body=").append(body==null?"null":new String(body));
+        sb.append(", body=").append(body == null ? "null" : new String(body));
         sb.append('}');
         return sb.toString();
     }

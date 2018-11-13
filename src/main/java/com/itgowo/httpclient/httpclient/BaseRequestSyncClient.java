@@ -140,7 +140,7 @@ public abstract class BaseRequestSyncClient implements Callable<HttpResponse> {
                 int fileLength = httpURLConnection.getContentLength();
                 httpResponse.setIsDownloadFile(true);
                 // 文件名
-                String filePathUrl = httpURLConnection.getURL().getFile();
+                String filePathUrl = httpURLConnection.getURL().getPath();
                 String fileFullName = filePathUrl.substring(filePathUrl.lastIndexOf(File.separatorChar) + 1);
                 BufferedInputStream bin = new BufferedInputStream(httpURLConnection.getInputStream());
                 String path = downloadDir + File.separatorChar + fileFullName;

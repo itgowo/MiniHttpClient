@@ -26,7 +26,7 @@ public interface onCallbackListener {
      * @param file         如果是文件下载会返回文件位置
      * @throws Exception
      */
-    void onSuccess(HttpResponse httpResponse, File file) throws Exception;
+    void onSuccess(HttpResponse httpResponse, DownloadFile file) throws Exception;
 
     /**
      * 文件表单上传还是文件下载场景都会触发进度，当文件过大时，触发频率将降低

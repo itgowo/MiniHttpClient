@@ -29,16 +29,16 @@ public class HttpResponse {
     private Map<String, String> headers = new HashMap<>();
     private String method;
     private boolean isDownloadFile;
-    private File downloadFile;
+    private DownloadFile downloadFile;
     private URL url;
     private HttpURLConnection httpURLConnection;
     private Map<String, String> parms = new HashMap<>();
 
-    public File getDownloadFile() {
+    public DownloadFile getDownloadFile() {
         return downloadFile;
     }
 
-    public HttpResponse setDownloadFile(File downloadFile) {
+    public HttpResponse setDownloadFile(DownloadFile downloadFile) {
         this.downloadFile = downloadFile;
         return this;
     }

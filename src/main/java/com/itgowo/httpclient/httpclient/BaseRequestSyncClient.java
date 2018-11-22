@@ -11,9 +11,9 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 public abstract class BaseRequestSyncClient implements Callable<HttpResponse> {
-    private static final int FILE_BUFFER = 8192;
+    protected static final int FILE_BUFFER = 8192;
     protected URL url;
-    protected String reqestStr;
+    protected String requestStr;
     protected String requestMethod = "POST";
     protected String boundary = "---------------------7a8b9c0d1e2f3g";
     protected int timeout = 15000;
@@ -63,7 +63,7 @@ public abstract class BaseRequestSyncClient implements Callable<HttpResponse> {
     }
 
     protected HttpResponse request() throws IOException {
-        reqestStr = prepare(this);
+        requestStr = prepare(this);
         httpURLConnection = (HttpURLConnection) url.openConnection();
 
         //设置参数
@@ -125,10 +125,10 @@ public abstract class BaseRequestSyncClient implements Callable<HttpResponse> {
             outputStream.writeBytes(twoHyphens + boundary + twoHyphens + end);
             /* close streams */
             outputStream.flush();
-        } else if (reqestStr != null && !requestMethod.equalsIgnoreCase("GET")) {
+        } else if (requestStr != null && requestStr.length() != 0 && !requestMethod.equalsIgnoreCase("GET")) {
             //建立输入流，向指向的URL传入参数
             bos = new BufferedWriter(new OutputStreamWriter(httpURLConnection.getOutputStream()));
-            bos.write(reqestStr);
+            bos.write(requestStr);
             bos.flush();
             bos.close();
         }
@@ -138,42 +138,10 @@ public abstract class BaseRequestSyncClient implements Callable<HttpResponse> {
         if (httpResponse.isSuccess()) {
             String ContentType = httpURLConnection.getHeaderField("Content-Type");
             if (ContentType != null && ContentType.contains("application/octet-stream")) {
-                int fileLength = httpURLConnection.getContentLength();
+                DownloadFile downloadFile=new DownloadFile(httpURLConnection,httpResponse,listener);
                 httpResponse.setIsDownloadFile(true);
-                // 文件名
-                String filePathUrl = httpURLConnection.getURL().getPath();
-                filePathUrl=URLDecoder.decode(filePathUrl,"utf-8");
-                String fileFullName = filePathUrl.substring(filePathUrl.lastIndexOf(File.separatorChar) + 1);
-                BufferedInputStream bin = new BufferedInputStream(httpURLConnection.getInputStream());
-                String path = downloadDir + File.separatorChar + fileFullName;
-                file = new File(path);
-                if (!file.getParentFile().exists()) {
-                    file.getParentFile().mkdirs();
-                }
-                file.createNewFile();
-                OutputStream out = new FileOutputStream(file);
-                int size = 0;
-                int len = 0;
-                int bufferSize = FILE_BUFFER;
-                if (fileLength > FILE_BUFFER * 100) {
-                    bufferSize = fileLength / 100;
-                    if (bufferSize > FILE_BUFFER * 100) {
-                        bufferSize = FILE_BUFFER * 100;
-                    }
-                }
-                byte[] buf = new byte[bufferSize];
-                while ((size = bin.read(buf)) != -1) {
-                    len += size;
-                    out.write(buf, 0, size);
-                    try {
-                        listener.onProcess(file, fileLength, len);
-                    } catch (Exception e) {
-                        listener.onError(httpResponse.setSuccess(false), e);
-                    }
-                }
-                bin.close();
-                out.close();
-                httpResponse.setDownloadFile(file);
+
+                httpResponse.setDownloadFile(downloadFile);
             } else {
                 httpResponse.setBody(httpURLConnection.getInputStream());
             }
@@ -195,7 +163,7 @@ public abstract class BaseRequestSyncClient implements Callable<HttpResponse> {
     }
 
     public BaseRequestSyncClient setReqestData(String data) {
-        this.reqestStr = data;
+        this.requestStr = data;
         return this;
     }
 

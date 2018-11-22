@@ -11,7 +11,7 @@ public class Demo {
         String url = "http://127.0.0.1:12111/app.js";
         String url1 = "http://file.itgowo.com/itgowo/MiniHttpServer/version";
         for (int i = 0; i < 100; i++) {
-            testRequestSync();
+            testDownloadFile();
         }
     }
 
@@ -56,7 +56,8 @@ public class Demo {
             }
 
         });
-    } public static void testRequestSync() {
+    }
+    public static void testRequestSync() {
         String url = "http://127.0.0.1:12111/app.js";
         Map<String, String> headers = new HashMap<>();
         headers.put("content-type", "application/json");
@@ -71,7 +72,7 @@ public class Demo {
 
     public static void testDownloadFile() {
         String downloadUrl = "http://file.itgowo.com/itgowo/RemoteDataController/web_app.zip";
-        String downloadDir = "/temp";
+        String downloadDir = "temp";
         HttpClient.RequestGetFile(downloadUrl, null, downloadDir, new onSimpleCallbackListener() {
             @Override
             public void onError(HttpResponse response, Exception e) {
@@ -86,8 +87,9 @@ public class Demo {
             }
 
             @Override
-            public void onSuccess(HttpResponse httpResponse, File file) throws Exception {
-                System.out.println("httpResponse = [" + httpResponse + "], file = [" + file + "]");
+            public void onSuccess(HttpResponse httpResponse, DownloadFile file) throws Exception {
+                file.saveToFile(downloadDir);
+                System.out.println("httpResponse = [" + httpResponse + "], file = [" + file.getFile() + "]");
             }
 
             @Override

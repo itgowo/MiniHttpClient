@@ -15,7 +15,7 @@ public class onSimpleCallbackListener implements onCallbackListener {
     }
 
     @Override
-    public void onSuccess(HttpResponse httpResponse, File file) throws Exception {
+    public void onSuccess(HttpResponse httpResponse, DownloadFile file) throws Exception {
 
     }
 

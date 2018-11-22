@@ -13,9 +13,9 @@ import java.util.concurrent.*;
  * QQ:1264957104
  */
 public class HttpClient {
-    private static final String TAG = "itgowo-HttpClient";
+    private static final String TAG = "MiniHttpClient";
     private static int timeout = 30000;
-    private static ExecutorService executorService = new ThreadPoolExecutor(1, 10, 30, TimeUnit.SECONDS, new LinkedBlockingDeque<Runnable>(), new ThreadFactory() {
+    private static ExecutorService executorService = new ThreadPoolExecutor(0, 10, 30, TimeUnit.SECONDS, new LinkedBlockingDeque<Runnable>(), new ThreadFactory() {
         @Override
         public Thread newThread(Runnable r) {
             Thread thread = new Thread(r);

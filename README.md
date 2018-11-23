@@ -34,7 +34,7 @@ implementation 'com.itgowo:MiniHttpClient:0.0.26'
 ### 五：简单使用(库Jar中有Demo类，可以参考)
 [Demo.java](https://github.com/itgowo/MiniHttpClient/blob/master/src/main/java/com/itgowo/httpclient/httpclient/Demo.java)
 
-#### 模拟表单上传，POST方式
+#### 1.模拟表单上传，POST方式
 ```
     public static void testUploadFile() {
         String url = "http://127.0.0.1:12111/app.js";
@@ -59,7 +59,7 @@ implementation 'com.itgowo:MiniHttpClient:0.0.26'
         });
     }
 ```
-#### 提交数据
+#### 2.提交数据
 
 ```
     public static void testRequest() {
@@ -82,7 +82,7 @@ implementation 'com.itgowo:MiniHttpClient:0.0.26'
         });
     }
 ```
-#### 文件下载，Android使用注意必须设置下载目录，Java默认目录为"/"
+#### 3.文件下载，Android使用注意必须设置下载目录，Java默认目录为"/"
 ```
     public static void testDownloadFile() {
         String downloadUrl = "http://file.itgowo.com/itgowo/RemoteDataController/web_app.zip";
@@ -112,7 +112,7 @@ implementation 'com.itgowo:MiniHttpClient:0.0.26'
         });
     }
 ```
-#### 同步方式下载文件，文件对象放在HttpResponse中的downloadFile里
+#### 4.同步方式下载文件，文件对象放在HttpResponse中的downloadFile里
 ```
     public static void testSyncDownloadFile() {
         try {

@@ -29,25 +29,24 @@ public class HttpClient {
     }
 
     public static void RequestGet(String url, Map<String, String> headers, onCallbackListener listener) {
-        RequestGetFile(url, headers, null, listener);
+        RequestGetFile(url, headers, listener);
     }
 
-    public static void RequestGetFile(String url, Map<String, String> headers, String downloadDir, onCallbackListener listener) {
-        Request(url, HttpMethod.GET, headers, downloadDir, null, listener);
+    public static void RequestGetFile(String url, Map<String, String> headers, onCallbackListener listener) {
+        Request(url, HttpMethod.GET, headers, null, listener);
     }
 
     public static void RequestPOST(String url, Map<String, String> headers, String requestJson, onCallbackListener listener) {
-        Request(url, HttpMethod.POST, headers, null, requestJson, listener);
+        Request(url, HttpMethod.POST, headers, requestJson, listener);
     }
 
-    public static void Request(String url, HttpMethod method, Map<String, String> headers1, String downloadDir1, String requestJson, onCallbackListener listener) {
+    public static void Request(String url, HttpMethod method, Map<String, String> headers1, String requestJson, onCallbackListener listener) {
         executorService.execute(new RequestAsyncClient(url, method.getMethod(), timeout, listener) {
             @Override
             protected String prepare(RequestClient requestClient) {
                 if (headers1 != null) {
                     requestClient.addHeaders(headers1);
                 }
-                setDownloadDir(downloadDir1);
                 return requestJson;
             }
         });
@@ -66,13 +65,14 @@ public class HttpClient {
         });
     }
 
-    public static HttpResponse RequestSync(String url, HttpMethod method, Map<String, String> headers1, String requestJson) throws Exception {
+    public static HttpResponse RequestSync(String url, HttpMethod method, Map<String, String> headers1, List<File> uploadFiles1, String requestJson) throws Exception {
         RequestClient requestClient = new RequestClient(url, method.getMethod(), timeout, new onSimpleCallbackListener()) {
             @Override
             protected String prepare(RequestClient requestClient) {
                 if (headers1 != null) {
                     requestClient.addHeaders(headers1);
                 }
+                requestClient.setUploadFiles(uploadFiles1);
                 return requestJson;
             }
         };

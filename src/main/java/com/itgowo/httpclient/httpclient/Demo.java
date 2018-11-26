@@ -43,7 +43,7 @@ public class Demo {
         Map<String, String> headers = new HashMap<>();
         headers.put("content-type", "application/json");
         String httpBody = "{\"name\":\"张三\"}";
-        HttpClient.Request(url, HttpMethod.POST, headers, null, httpBody, new onSimpleCallbackListener() {
+        HttpClient.Request(url, HttpMethod.POST, headers,  httpBody, new onSimpleCallbackListener() {
             @Override
             public void onError(HttpResponse response, Exception e) {
                 e.printStackTrace();
@@ -63,7 +63,7 @@ public class Demo {
         headers.put("content-type", "application/json");
         String httpBody = "{\"name\":\"张三\"}";
         try {
-          HttpResponse response=  HttpClient.RequestSync(url, HttpMethod.POST, headers,   httpBody);
+          HttpResponse response=  HttpClient.RequestSync(url, HttpMethod.POST, headers, null,  httpBody);
             System.out.println(response);
         } catch (Exception e) {
             e.printStackTrace();
@@ -73,7 +73,7 @@ public class Demo {
     public static void testDownloadFile() {
         String downloadUrl = "http://file.itgowo.com/itgowo/RemoteDataController/web_app.zip";
         String downloadDir = "temp";
-        HttpClient.RequestGetFile(downloadUrl, null, downloadDir, new onSimpleCallbackListener() {
+        HttpClient.RequestGetFile(downloadUrl, null,  new onSimpleCallbackListener() {
             @Override
             public void onError(HttpResponse response, Exception e) {
                 e.printStackTrace();
@@ -102,7 +102,7 @@ public class Demo {
     public static void testSyncDownloadFile() {
         try {
             String url = "http://127.0.0.1:12111/app.js";
-            HttpResponse response = HttpClient.RequestSync(url, HttpMethod.GET, null, null);
+            HttpResponse response = HttpClient.RequestSync(url, HttpMethod.GET, null, null,null);
             System.out.println(response.getDownloadFile().getOriginFileName());
         } catch (Exception e) {
             e.printStackTrace();

@@ -7,7 +7,6 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
 public abstract class RequestClient {
     protected static final int FILE_BUFFER = 8192;
@@ -17,7 +16,6 @@ public abstract class RequestClient {
     protected String boundary = "---------------------7a8b9c0d1e2f3g";
     protected int timeout = 15000;
     protected HttpResponse httpResponse = new HttpResponse();
-    protected String downloadDir = new File("").getAbsolutePath();
     protected Map<String, String> headers = new HashMap<>();
     protected onCallbackListener listener;
     protected List<File> uploadFiles;
@@ -43,8 +41,10 @@ public abstract class RequestClient {
     }
 
     public RequestClient setUploadFiles(List<File> uploadFiles) {
-        this.uploadFiles = uploadFiles;
-        headers.put("Content-Type", "multipart/form-data;boundary=" + boundary);
+        if (uploadFiles != null && !uploadFiles.isEmpty()) {
+            this.uploadFiles = uploadFiles;
+            headers.put("Content-Type", "multipart/form-data;boundary=" + boundary);
+        }
         return this;
     }
 
@@ -54,11 +54,6 @@ public abstract class RequestClient {
 
     public void setContentType() {
         headers.put("Content-Type", "application/json");
-    }
-
-    public void setDownloadDir(String dir) {
-        if (dir != null && dir.trim().length() > 0)
-            this.downloadDir = dir;
     }
 
     protected HttpResponse request() throws IOException {
@@ -136,7 +131,7 @@ public abstract class RequestClient {
         if (httpResponse.isSuccess()) {
             String ContentType = httpURLConnection.getHeaderField("Content-Type");
             if (ContentType != null && ContentType.contains("application/octet-stream")) {
-                DownloadFile downloadFile=new DownloadFile(httpURLConnection,httpResponse,listener);
+                DownloadFile downloadFile = new DownloadFile(httpURLConnection, httpResponse, listener);
                 httpResponse.setIsDownloadFile(true);
 
                 httpResponse.setDownloadFile(downloadFile);

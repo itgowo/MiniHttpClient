@@ -103,7 +103,7 @@ public class Demo {
         try {
             String url = "http://127.0.0.1:12111/app.js";
             HttpResponse response = HttpClient.RequestSync(url, HttpMethod.GET, null, null);
-            System.out.println(response.getDownloadFile());
+            System.out.println(response.getDownloadFile().getOriginFileName());
         } catch (Exception e) {
             e.printStackTrace();
         }

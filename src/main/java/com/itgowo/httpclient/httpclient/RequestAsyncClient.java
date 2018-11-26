@@ -1,7 +1,7 @@
 package com.itgowo.httpclient.httpclient;
 
-public abstract class BaseRequestAsyncClient extends BaseRequestSyncClient implements Runnable {
-    public BaseRequestAsyncClient(String url, String method, int timeout, onCallbackListener listener) {
+public abstract class RequestAsyncClient extends RequestClient implements Runnable {
+    public RequestAsyncClient(String url, String method, int timeout, onCallbackListener listener) {
         super(url, method, timeout, listener);
     }
 

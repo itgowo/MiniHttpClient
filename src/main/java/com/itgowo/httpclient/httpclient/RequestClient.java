@@ -4,13 +4,12 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-public abstract class BaseRequestSyncClient implements Callable<HttpResponse> {
+public abstract class RequestClient {
     protected static final int FILE_BUFFER = 8192;
     protected URL url;
     protected String requestStr;
@@ -24,7 +23,7 @@ public abstract class BaseRequestSyncClient implements Callable<HttpResponse> {
     protected List<File> uploadFiles;
     protected HttpURLConnection httpURLConnection;
 
-    public BaseRequestSyncClient(String url, String method, int timeout, onCallbackListener listener) {
+    public RequestClient(String url, String method, int timeout, onCallbackListener listener) {
         this.requestMethod = method;
         this.timeout = timeout;
         this.listener = listener;
@@ -43,7 +42,7 @@ public abstract class BaseRequestSyncClient implements Callable<HttpResponse> {
         }
     }
 
-    public BaseRequestSyncClient setUploadFiles(List<File> uploadFiles) {
+    public RequestClient setUploadFiles(List<File> uploadFiles) {
         this.uploadFiles = uploadFiles;
         headers.put("Content-Type", "multipart/form-data;boundary=" + boundary);
         return this;
@@ -134,7 +133,6 @@ public abstract class BaseRequestSyncClient implements Callable<HttpResponse> {
         }
         //获得响应状态
         httpResponse.parse(httpURLConnection);
-        File file = null;
         if (httpResponse.isSuccess()) {
             String ContentType = httpURLConnection.getHeaderField("Content-Type");
             if (ContentType != null && ContentType.contains("application/octet-stream")) {
@@ -152,30 +150,26 @@ public abstract class BaseRequestSyncClient implements Callable<HttpResponse> {
         return httpResponse;
     }
 
-    public BaseRequestSyncClient addHeader(String key, String value) {
+    public RequestClient addHeader(String key, String value) {
         this.headers.put(key, value);
         return this;
     }
 
-    public BaseRequestSyncClient addHeaders(Map<String, String> headers) {
+    public RequestClient addHeaders(Map<String, String> headers) {
         this.headers.putAll(headers);
         return this;
     }
 
-    public BaseRequestSyncClient setReqestData(String data) {
+    public RequestClient setReqestData(String data) {
         this.requestStr = data;
         return this;
     }
 
-    protected abstract String prepare(BaseRequestSyncClient baseRequestSyncClient);
+    protected abstract String prepare(RequestClient requestClient);
 
     @Deprecated
     public HttpURLConnection getHttpURLConnection() {
         return httpURLConnection;
     }
 
-    @Override
-    public HttpResponse call() throws Exception {
-        return request();
-    }
 }

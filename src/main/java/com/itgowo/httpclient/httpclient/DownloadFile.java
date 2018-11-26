@@ -4,7 +4,7 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URLDecoder;
 
-import static com.itgowo.httpclient.httpclient.BaseRequestSyncClient.FILE_BUFFER;
+import static com.itgowo.httpclient.httpclient.RequestClient.FILE_BUFFER;
 
 public class DownloadFile {
     /**
@@ -19,6 +19,8 @@ public class DownloadFile {
 
     public DownloadFile(HttpURLConnection httpURLConnection, HttpResponse httpResponse, onCallbackListener listener) throws IOException {
         this.fileLength = httpURLConnection.getContentLength();
+        this.httpResponse = httpResponse;
+        this.listener = listener;
         // 文件名
         this.originFileName = getHeaderFileName();
         if (this.originFileName == null || this.originFileName.equals("")) {
@@ -27,8 +29,7 @@ public class DownloadFile {
             this.originFileName = filePathUrl.substring(filePathUrl.lastIndexOf(File.separatorChar) + 1);
         }
         this.fileStream = new BufferedInputStream(httpURLConnection.getInputStream());
-        this.httpResponse = httpResponse;
-        this.listener = listener;
+
     }
 
     public String getOriginFileName() {
@@ -108,8 +109,11 @@ public class DownloadFile {
      * @return
      */
     private String getHeaderFileName() {
+        if (httpResponse.getHeaders()==null){
+            return "";
+        }
         String dispositionHeader = httpResponse.getHeaders().get("Content-Disposition");
-        if (dispositionHeader != null || dispositionHeader.trim().length() > 0) {
+        if (dispositionHeader != null && dispositionHeader.trim().length() > 0) {
             dispositionHeader.replace("attachment;filename=", "");
             dispositionHeader.replace("filename*=utf-8", "");
             String[] strings = dispositionHeader.split("; ");

@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -82,15 +83,13 @@ public abstract class RequestClient {
         if (HttpMethod.POST.equalsIgnoreCase(requestMethod) && uploadFiles != null && !uploadFiles.isEmpty()) {
             String end = "\r\n";
             String twoHyphens = "--";
-            DataOutputStream outputStream = new DataOutputStream(httpURLConnection.getOutputStream());
+            OutputStream outputStream = httpURLConnection.getOutputStream() ;
             for (int i = 0; i < uploadFiles.size(); i++) {
                 File uploadFile = uploadFiles.get(i);
-                String filename = uploadFile.getName();
-                File file = new File(filename);
-                outputStream.writeBytes(twoHyphens + boundary + end);
-                outputStream.writeBytes("Content-Disposition: form-data; " + "name=\"file" + i + "\";filename=\"" + file.getName() + "\"" + end);
-                outputStream.writeBytes("Content-Type: application/octet-stream" + end);
-                outputStream.writeBytes(end);
+                outputStream.write((twoHyphens + boundary + end).getBytes());
+                outputStream.write(("Content-Disposition: form-data; " + "name=\"file" + i + "\";filename=\"" + uploadFile.getName()+"\"" + end).getBytes());
+                outputStream.write(("Content-Type: application/octet-stream" + end).getBytes());
+                outputStream.write(end.getBytes());
                 FileInputStream fStream = new FileInputStream(uploadFile);
                 int count = fStream.available();
                 int bufferSize = FILE_BUFFER;
@@ -104,7 +103,7 @@ public abstract class RequestClient {
                 byte[] buffer = new byte[bufferSize];
                 int length = -1;
                 while ((length = fStream.read(buffer)) != -1) {
-                    outputStream.write(buffer, 0, length);
+                    httpURLConnection.getOutputStream().write(buffer, 0, length);
                     process += length;
                     try {
                         listener.onProcess(uploadFile, count, process);
@@ -112,11 +111,11 @@ public abstract class RequestClient {
                         listener.onError(httpResponse.setSuccess(false), e);
                     }
                 }
-                outputStream.writeBytes(end);
+                outputStream.write(end.getBytes());
                 /* close streams */
                 fStream.close();
             }
-            outputStream.writeBytes(twoHyphens + boundary + twoHyphens + end);
+            outputStream.write((twoHyphens + boundary + twoHyphens + end).getBytes());
             /* close streams */
             outputStream.flush();
         } else if (requestStr != null && requestStr.length() != 0 && !requestMethod.equalsIgnoreCase("GET")) {

@@ -21,14 +21,14 @@ Mac OS 10、Java 1.8、IDEA（Gradle工程）
 <dependency>
   <groupId>com.itgowo</groupId>
   <artifactId>MiniHttpClient</artifactId>
-  <version>0.0.26</version>
+  <version>0.0.37</version>
   <type>pom</type>
 </dependency>
 ```
 
 2. Gradle
 ```
-implementation 'com.itgowo:MiniHttpClient:0.0.26'
+implementation 'com.itgowo:MiniHttpClient:0.0.37'
 ```
 
 ### 五：简单使用(库Jar中有Demo类，可以参考)
@@ -37,7 +37,7 @@ implementation 'com.itgowo:MiniHttpClient:0.0.26'
 #### 1.模拟表单上传，POST方式
 ```
     public static void testUploadFile() {
-        String url = "http://127.0.0.1:12111/app.js";
+        String url = "http://127.0.0.1:12111";
         List<File> files = new ArrayList<>();
         File file = new File("/Users/lujianchao/Desktop/RDC1.png");
         files.add(file);
@@ -59,7 +59,22 @@ implementation 'com.itgowo:MiniHttpClient:0.0.26'
         });
     }
 ```
-#### 2.提交数据
+
+#### 2.同步上传文件
+
+```
+public static void testSyncUploadFile() throws Exception {
+        String url = "http://127.0.0.1:12111/app.js";
+        List<File> files = new ArrayList<>();
+        File file = new File("/Users/lujianchao/Desktop/RDC1.png");
+        files.add(file);
+        HttpResponse httpResponse = HttpClient.RequestSync(url, HttpMethod.POST, null, files, null);
+        if (httpResponse.isSuccess()) {
+            System.out.println("上传成功");
+        }
+    }
+```
+#### 3.提交数据
 
 ```
     public static void testRequest() {
@@ -67,7 +82,7 @@ implementation 'com.itgowo:MiniHttpClient:0.0.26'
         Map<String, String> headers = new HashMap<>();
         headers.put("content-type", "application/json");
         String httpBody = "{\"name\":\"张三\"}";
-        HttpClient.Request(url, HttpMethod.POST, headers, null, httpBody, new onSimpleCallbackListener() {
+        HttpClient.Request(url, HttpMethod.POST, headers, httpBody, new onSimpleCallbackListener() {
             @Override
             public void onError(HttpResponse response, Exception e) {
                 e.printStackTrace();
@@ -82,12 +97,30 @@ implementation 'com.itgowo:MiniHttpClient:0.0.26'
         });
     }
 ```
-#### 3.文件下载，Android使用注意必须设置下载目录，Java默认目录为"/"
+
+#### 4.同步请求
+
+```
+    public static void testRequestSync() {
+        String url = "http://127.0.0.1:12111/app.js";
+        Map<String, String> headers = new HashMap<>();
+        headers.put("content-type", "application/json");
+        String httpBody = "{\"name\":\"张三\"}";
+        try {
+            HttpResponse response = HttpClient.RequestSync(url, HttpMethod.POST, headers, null, httpBody);
+            System.out.println(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+```
+
+#### 5.文件下载，如果文件已存在，则用时间戳拼在文件名前面，通过DownloadFile的getOriginFileName()方法获取浏览器返回文件名，如果是重定向获取的文件下载十分有意义，不能用原始url判断文件名。
 ```
     public static void testDownloadFile() {
         String downloadUrl = "http://file.itgowo.com/itgowo/RemoteDataController/web_app.zip";
-        String downloadDir = "/temp";
-        HttpClient.RequestGetFile(downloadUrl, null, downloadDir, new onSimpleCallbackListener() {
+        String downloadDir = "temp";
+        HttpClient.RequestGetFile(downloadUrl, null, new onSimpleCallbackListener() {
             @Override
             public void onError(HttpResponse response, Exception e) {
                 e.printStackTrace();
@@ -101,8 +134,9 @@ implementation 'com.itgowo:MiniHttpClient:0.0.26'
             }
 
             @Override
-            public void onSuccess(HttpResponse httpResponse, File file) throws Exception {
-                System.out.println("httpResponse = [" + httpResponse + "], file = [" + file + "]");
+            public void onSuccess(HttpResponse httpResponse, DownloadFile file) throws Exception {
+                file.saveToFile(downloadDir);
+                System.out.println("httpResponse = [" + httpResponse + "], file = [" + file.getFile() + "]");
             }
 
             @Override
@@ -112,7 +146,7 @@ implementation 'com.itgowo:MiniHttpClient:0.0.26'
         });
     }
 ```
-#### 4.同步方式下载文件，文件对象放在HttpResponse中的downloadFile里
+#### 6.同步方式下载文件，文件对象放在HttpResponse中的downloadFile里
 ```
     public static void testSyncDownloadFile() {
         try {
@@ -163,55 +197,54 @@ implementation 'com.itgowo:MiniHttpClient:0.0.26'
 ### 七：原理解析
 
 1. 以HttpURLConnection为基础开发，需要学会简单使用HttpURLConnection才能更好理解这个库。
-2. 最核心请求类是BaseRequestSyncClient，实现了Callable接口，可以被线程池submit()调用，实现同步操作。BaseRequestSyncClient封装了request()方法开始请求，request()执行先触发prepare(BaseRequestSyncClient baseRequestSyncClient)方法，初始化请求参数。例如：
+2. 最核心请求类是RequestClient，封装了request()方法开始请求，request()执行先触发prepare(RequestClient requestClient)方法，初始化请求参数。例如：
 ```
- public static void Request(String url, HttpMethod method, Map<String, String> headers1, String downloadDir1, String requestJson, onCallbackListener listener) {
-        executorService.execute(new BaseRequestAsyncClient(url, method.getMethod(), timeout, listener) {
+public static HttpResponse RequestSync(String url, HttpMethod method, Map<String, String> headers1, List<File> uploadFiles1, String requestJson) throws Exception {
+        RequestClient requestClient = new RequestClient(url, method.getMethod(), timeout, new onSimpleCallbackListener()) {
             @Override
-            protected String prepare(BaseRequestSyncClient baseRequestSyncClient) {
+            protected String prepare(RequestClient requestClient) {
                 if (headers1 != null) {
-                    baseRequestSyncClient.addHeaders(headers1);
+                    requestClient.addHeaders(headers1);
                 }
-                setDownloadDir(downloadDir1);
+                requestClient.setUploadFiles(uploadFiles1);
                 return requestJson;
             }
-
-        });
+        };
+        return requestClient.request();
     }
 ```
 3. 通过prepare()可以设置header和上传文件和下载目录等。返回值是String类型，就是请求的Body部分，通常的接口请求json文本就是放到这里，请求json文本就不要设置上传文件了。如果是文件上传，需要这样定义：
 ```
-           protected String prepare(BaseRequestSyncClient baseRequestSyncClient) {
+           protected String prepare(RequestClient requestClient)) {
                 if (headers1 != null) {
-                    baseRequestSyncClient.addHeaders(headers1);
+                    requestClient.addHeaders(headers1);
                 }
-                baseRequestSyncClient.setUploadFiles(uploadFiles1);
+                requestClient.setUploadFiles(uploadFiles1);
                 return null;
             }
 ```
 
 4. 如果是文件下载，请求的body需不需要看你们接口定义，一般静态资源请求是GET方法，body为null，可以这样定义：
 ```
-            protected String prepare(BaseRequestSyncClient baseRequestSyncClient) {
+            protected String prepare(RequestClient requestClient)) {
                 if (headers1 != null) {
-                    baseRequestSyncClient.addHeaders(headers1);
+                    requestClient.addHeaders(headers1);
                 }
-                setDownloadDir(downloadDir1);
                 return null;
             }
 ```
 
-5. 如果用同步方法，只需要线程池submit就行，用FutureTask接收即可，如下：
+5. 如果用同步方法，只需要RequestClient用HttpResponse接收即可，如下：
 
 ```
-FutureTask futureTask = (FutureTask) executorService.submit(new BaseRequestSyncClient(url, method.getMethod(), timeout, new onSimpleCallbackListener() {}
-futureTask.get();
+        RequestClient requestClient = new RequestClient(url, method.getMethod(), timeout, new onSimpleCallbackListener()) {};
+        return requestClient.request();
 ```
-6. 说说异步类BaseRequestAsyncClient，其实只是实现了runnable接口，在run()方法中触发request(),然后判断执行回调，代码如下：
+6. 说说异步类RequestAsyncClient，其实只是实现了runnable接口，在run()方法中触发request(),然后判断执行回调，代码如下：
 
 ```
-public abstract class BaseRequestAsyncClient extends BaseRequestSyncClient implements Runnable {
-    public BaseRequestAsyncClient(String url, String method, int timeout, onCallbackListener listener) {
+public abstract class RequestAsyncClient extends RequestClient implements Runnable {
+    public RequestAsyncClient(String url, String method, int timeout, onCallbackListener listener) {
         super(url, method, timeout, listener);
     }
 

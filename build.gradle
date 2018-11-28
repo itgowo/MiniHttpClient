@@ -33,7 +33,7 @@ publish {
     userOrg = 'itgowo'
     groupId = 'com.itgowo'
     artifactId = 'MiniHttpClient'
-    publishVersion = '0.0.42'
+    publishVersion = '0.0.43'
     desc = 'A simple http client framework based on HttpURLConnection wrapper'
     website = 'https://github.com/itgowo/MiniHttpClient'
 }

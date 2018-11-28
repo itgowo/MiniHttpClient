@@ -2,7 +2,6 @@ package com.itgowo.httpclient.httpclient;
 
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -20,6 +19,13 @@ import java.util.StringTokenizer;
  * QQ:1264957104
  */
 public class HttpResponse {
+    public static final String JSON = "application/json";
+    public static final String HTML = "text/html";
+    public static final String TEXT = "text/plain";
+    public static final String XML = "text/xml";
+    public static final String JS = "application/javascript";
+    public static final String CSS = "text/css";
+    public static final String OBJECT = "application/octet-stream";
     private boolean isSuccess = true;
     private int responseCode = 200;
     private String responseMessage = "";
@@ -47,8 +53,18 @@ public class HttpResponse {
         return isDownloadFile;
     }
 
-    public HttpResponse setIsDownloadFile(boolean downloadFile) {
-        isDownloadFile = downloadFile;
+    public boolean isDownloadFile(String contentType) {
+        if (contentType == null || contentType.trim().length() == 0) {
+            return false;
+        }
+        if (contentType.contains(JSON) || contentType.contains(HTML) || contentType.contains(TEXT) || contentType.contains(XML)) {
+            return false;
+        }
+        return true;
+    }
+
+    public HttpResponse setIsDownloadFile(String contentType) {
+        isDownloadFile = isDownloadFile(contentType);
         return this;
     }
 
@@ -111,7 +127,7 @@ public class HttpResponse {
     }
 
     public HttpResponse setBody(InputStream inputStream) throws IOException {
-        if (inputStream==null){
+        if (inputStream == null) {
             return this;
         }
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

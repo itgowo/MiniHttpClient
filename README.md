@@ -7,6 +7,15 @@ Mac OS 10、Java 1.8、IDEA（Gradle工程）
 
 ### 二：介绍
 基于Java HttpURLConnection实现Http客户端，支持普通接口请求和表单上传文件及文件下载等。使用线程池实现同步Future和异步请求。
+
+目前判断以下ContentType为文本接收，其余认为文件下载：
+|ContentType|类型|说明|
+|---|---|---|
+|空|空|没有指明数据类型，默认按文本处理|
+|application/json|Json文本|常见接口请求|
+|text/html|htm或者html等|网页文件|
+|text/plain|纯文本|txt等文件，以文本返回，不按文件下载|
+|text/xml|xml类文件|xml及其衍生文件格式大多数用这种类型|
 ### 三：特点
     
 * 纯Java API实现，轻巧。
@@ -21,14 +30,14 @@ Mac OS 10、Java 1.8、IDEA（Gradle工程）
 <dependency>
   <groupId>com.itgowo</groupId>
   <artifactId>MiniHttpClient</artifactId>
-  <version>0.0.37</version>
+  <version>0.0.43</version>
   <type>pom</type>
 </dependency>
 ```
 
 2. Gradle
 ```
-implementation 'com.itgowo:MiniHttpClient:0.0.37'
+implementation 'com.itgowo:MiniHttpClient:0.0.43'
 ```
 
 ### 五：简单使用(库Jar中有Demo类，可以参考)
@@ -281,7 +290,7 @@ public abstract class RequestAsyncClient extends RequestClient implements Runnab
 |[RemoteDataControllerForServer](https://github.com/itgowo/RemoteDataControllerForServer)|Java|[简书](https://www.jianshu.com/p/3858c7e26a98)|运行Java的设备|远程数据调试Server端|
 |[MiniHttpClient](https://github.com/itgowo/MiniHttpClient)|Java|[简书](https://www.jianshu.com/p/41b0917271d3)|运行Java的设备|精简的HttpClient|
 |[MiniHttpServer](https://github.com/itgowo/MiniHttpServer)|Java|[简书](https://www.jianshu.com/p/de98fa07140d)|运行Java的设备|支持部分Http协议的Server|
-|[MiniLongConnectionServer](https://github.com/itgowo/MiniLongConnectionServer)|Java|[简书](https://www.jianshu.com/p/4b993100eae5)|运行Java的设备|TCP长连接库，支持粘包拆包处理|
+|[MiniTCPClient](https://github.com/itgowo/MiniTCPClient)|Java|[简书](https://www.jianshu.com/p/4b993100eae5)|运行Java的设备|TCP长连接库，支持粘包拆包处理|
 |[PackageMessage](https://github.com/itgowo/PackageMessage)|Java|[简书](https://www.jianshu.com/p/8a4a0ba2f54a)|运行Java的设备|TCP粘包与半包解决方案|
 |[ByteBuffer](https://github.com/itgowo/ByteBuffer)|Java|[简书](https://www.jianshu.com/p/ba68224f30e4)|运行Java的设备|二进制处理工具类|
 |[DataTables.AltEditor](https://github.com/itgowo/DataTables.AltEditor)|JavaScript|[简书](https://www.jianshu.com/p/a28d5a4c333b)|浏览器|Web端表格编辑组件|
